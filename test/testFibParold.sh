@@ -8,10 +8,8 @@ callservice() {
   host=10.0.0.124
   port=8080
   onesecond=1000
-  if [ $threadid -eq 1 ]
-  then
-    echo "run_id,thread_id,json,elapsed_time,sleep_time_ms"
-  fi
+  echo "totalruns=$1 threadid=$2"
+  echo "run_id,thread_id,json,elapsed_time,sleep_time_ms"
   for (( i=1 ; i <= $totalruns; i++ ))
   do
     json={"\"number\"":50000}
@@ -21,7 +19,7 @@ callservice() {
     elapsedtime=`expr $time2 - $time1`
     sleeptime=`echo $onesecond - $elapsedtime | bc -l`
     sleeptimems=`echo $sleeptime/$onesecond | bc -l`
-    echo "$i,$threadid,$json,$elapsedtime,$sleeptimems"
+    echo "Run-$i,$threadid,$json,$elapsedtime,$sleeptimems"
     if (( $sleeptime > 0 ))
     then
       sleep $sleeptimems
@@ -36,5 +34,10 @@ echo "Setting up test: runsperthread=$runsperthread threads=$threads totalruns=$
 for (( i=1 ; i <= $threads ; i ++))
 do
   arpt+=($runsperthread)
+  threadid+=($i)
 done
-parallel --no-notice -j $threads -k callservice {1} {#} ::: "${arpt[@]}"
+t=`seq 1 $threads`
+echo ${t[@]}
+echo ${arpt[@]}
+parallel -j $threads -X -n 2 callservice {1} {2} ::: "${arpt[@]}" ::: "${t[@]}"
+
