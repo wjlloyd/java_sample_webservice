@@ -1,7 +1,10 @@
 #!/bin/bash
 totalruns=$1
 threads=$2
+# 0 for random
 fibo=$3
+# Time format is year-mon-day hr:min:sec Example 2017-06-01 20:00:00
+starttime=$4
 
 callservice() {
   totalruns=$1
@@ -38,6 +41,23 @@ callservice() {
 }
 export -f callservice
 
+# If a starttime is provide, loop until we reach the start time before calling service
+if [ ! -z "$starttime" ]
+then
+  t1=`date --date="$starttime" +%s`
+  echo "Start script at $t1"
+  while : ; do
+    dt2=`date +%Y-%m-%d\ %H:%M:%S`
+    # Compute the seconds since epoch for date 2
+    current_time=`date --date="$dt2" +%s`
+    sleep .1
+    #echo "compare $current_time >= $t1"
+    [ "$current_time" -lt "$t1" ] || break
+  done
+echo "Starting script now... $current_time"
+fi
+
+# set up parallel service calls
 runsperthread=`echo $totalruns/$threads | bc -l`
 runsperthread=${runsperthread%.*}
 echo "Setting up test: runsperthread=$runsperthread threads=$threads totalruns=$totalruns fibonum=$fibo"
@@ -47,3 +67,4 @@ do
 done
 afibo="\"$fibo\""
 parallel --no-notice -j $threads -k callservice {1} {2} {"#"} ::: "${arpt[@]}" ::: "${afibo[@]}"
+
