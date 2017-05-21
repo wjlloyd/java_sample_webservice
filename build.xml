@@ -7,8 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="sample_web_service" default="default" basedir=".">
-    <description>Builds, tests, and runs the project sample_web_service.</description>
+<project name="fibo" default="default" basedir=".">
+    <description>Builds, tests, and runs the project fibo.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
